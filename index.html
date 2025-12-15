@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Office Seating</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+
+  <body>
+    <main class="map">
+      <div class="devbar">
+        <button id="toggleEditBtn" class="btn secondary">Edit: OFF</button>
+        <button id="exportBtn" class="btn">Export positions (JSON)</button>
+      </div>
+
+      <img id="floorplan" class="floorplan" src="floorplan.png" alt="Office floor plan" />
+      <div id="hotspots" class="hotspots"></div>
+
+      <div id="popover" class="popover hidden" role="dialog" aria-modal="false">
+        <div class="popover-head">
+          <button id="closePopover" class="icon-btn" aria-label="Close">✕</button>
+        </div>
+
+        <div class="popover-body">
+          <label class="label" for="employeeSelect">Employee</label>
+          <select id="employeeSelect"></select>
+
+          <div class="profile">
+            <img id="headshot" class="headshot" alt="Headshot" />
+            <div class="meta">
+              <div id="employeeName" class="name">—</div>
+              <a id="profileLink" class="link" href="#" target="_blank" rel="noreferrer">View profile</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="popover-foot">
+          <button id="resetBtn" class="btn secondary">Reset seat</button>
+        </div>
+      </div>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
