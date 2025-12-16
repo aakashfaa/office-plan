@@ -1,0 +1,13 @@
+{
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "frame-ancestors https://*.teams.microsoft.com https://teams.microsoft.com https://*.office.com https://office.com https://*.microsoft.com https://microsoft.com https://*.sharepoint.com"
+        }
+      ]
+    }
+  ]
+}
