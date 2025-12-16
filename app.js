@@ -167,45 +167,51 @@ init().catch((err) => {
   alert("Failed to load employees.json. Run using a local server (Live Server / python http.server).");
 });
 
+const USE_REMOTE_ON_LOAD = false;
+
 async function init() {
   const data = await fetch(DATA_URL).then((r) => r.json());
-  
 
   people = Array.isArray(data.people) ? data.people.slice() : [];
   const records = Array.isArray(data.records) ? data.records.slice() : [];
   recordsByName = new Map(records.map((rec) => [rec.name, rec]));
-
   if (!people.length) people = records.map((r) => r.name);
   people.sort((a, b) => a.localeCompare(b));
 
-  // ✅ load positions file if present, else fall back to DESKS
+  // ✅ 1) LOCAL positions from hotspot_positions.json (fallback to DESKS)
   draftDesks = await loadPositionsOrDefault();
 
-  layout = await loadSeatsOrEmpty();   // ✅ file-based seating
+  // ✅ 2) LOCAL seating fallback (empty or localStorage if you want)
+  layout = loadLayout?.() || {};   // if you still have loadLayout()
+  // OR if you want strictly "unassigned by default":
+  // layout = {};
 
-  // defaults
-  draftDesks = DESKS.map(d => ({ ...d }));
-  layout = {};
-
-  const remote = await loadStateRemote();
-  if (remote) {
-    if (Array.isArray(remote.desks)) {
-      const byId = new Map(draftDesks.map(d => [d.id, d]));
-      for (const p of remote.desks) {
-        const d = byId.get(p?.id);
-        if (!d) continue;
-        if (Number.isFinite(p.x)) d.x = p.x;
-        if (Number.isFinite(p.y)) d.y = p.y;
+  // ✅ 3) REMOTE overrides (Upstash)
+  if (USE_REMOTE_ON_LOAD) {
+    const remote = await loadStateRemote();
+    if (remote) {
+      // override positions
+      if (Array.isArray(remote.desks)) {
+        const byId = new Map(draftDesks.map(d => [d.id, d]));
+        for (const p of remote.desks) {
+          const d = byId.get(p?.id);
+          if (!d) continue;
+          if (Number.isFinite(p.x)) d.x = p.x;
+          if (Number.isFinite(p.y)) d.y = p.y;
+        }
       }
-    }
-    if (remote.layout && typeof remote.layout === "object") {
-      layout = remote.layout;
+    
+      // override seating
+      if (remote.layout && typeof remote.layout === "object") {
+        layout = remote.layout;
+      }
     }
   }
 
   renderHotspots();
   wireUI();
 }
+
 
 async function loadSeatsOrEmpty() {
   try {
