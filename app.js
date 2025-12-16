@@ -288,54 +288,93 @@ async function loadPositionsOrDefault() {
 
 
 function wireUI() {
-  closePopoverBtn.addEventListener("click", hidePopover);
+  // --- Required elements (if any are missing, the page HTML ids don't match) ---
+  const closeBtn = closePopoverBtn || document.getElementById("closePopoverBtn");
+  const selectEl = employeeSelectEl || document.getElementById("employeeSelect");
+  const rBtn = resetBtn || document.getElementById("resetBtn");
+
+  if (!closeBtn) console.error("Missing #closePopoverBtn in index.html");
+  if (!selectEl) console.error("Missing #employeeSelect in index.html");
+  if (!rBtn) console.error("Missing #resetBtn in index.html");
+
+  // Close popover
+  if (closeBtn) closeBtn.addEventListener("click", hidePopover);
 
   // Auto-save on selection
-  employeeSelectEl.addEventListener("change", async () => {
-    if (!activeDeskId) return;
+  if (selectEl) {
+    selectEl.addEventListener("change", async () => {
+      if (!activeDeskId) return;
 
-    const chosen = employeeSelectEl.value || "";
-    updateProfilePreview(chosen);
+      const chosen = selectEl.value || "";
+      updateProfilePreview(chosen);
 
-    if (!chosen) {
+      if (!chosen) delete layout[activeDeskId];
+      else layout[activeDeskId] = chosen;
+
+      saveLayout(layout);
+      await updateHotspotContent(activeDeskId);
+
+      // remote persist
+      scheduleRemoteSave(currentStatePayload());
+    });
+  }
+
+  // Reset (unassign)
+  if (rBtn) {
+    rBtn.addEventListener("click", async () => {
+      if (!activeDeskId) return;
+
       delete layout[activeDeskId];
-    } else {
-      layout[activeDeskId] = chosen;
-    }
-    saveLayout(layout);
-    await updateHotspotContent(activeDeskId);
-    scheduleRemoteSave(currentStatePayload());
+      saveLayout(layout);
 
-  });
+      if (selectEl) selectEl.value = "";
+      updateProfilePreview("");
 
+      await updateHotspotContent(activeDeskId);
 
+      // remote persist
+      scheduleRemoteSave(currentStatePayload());
 
+      hidePopover();
+    });
+  }
 
-  resetBtn.addEventListener("click", async () => {
-    if (!activeDeskId) return;
-    delete layout[activeDeskId];
-    saveLayout(layout);
-    employeeSelectEl.value = "";
-    updateProfilePreview("");
-    await updateHotspotContent(activeDeskId);
-    hidePopover();
-  });
-
+  // Optional buttons (only wire if present)
   const toggleEditBtn = document.getElementById("toggleEditBtn");
+  if (toggleEditBtn) {
+    toggleEditBtn.addEventListener("click", () => {
+      editMode = !editMode;
+      toggleEditBtn.textContent = editMode ? "Edit: ON" : "Edit: OFF";
+      if (editMode) hidePopover();
+      renderHotspots();
+      scheduleRemoteSave(currentStatePayload()); // optional; keeps state synced after edits too
+    });
+  } else {
+    console.warn("Optional: #toggleEditBtn not found (ok if you removed it).");
+  }
+
   const exportBtn = document.getElementById("exportBtn");
+  if (exportBtn) {
+    exportBtn.addEventListener("click", () => exportPositionsJSON());
+  } else {
+    console.warn("Optional: #exportBtn not found (ok if you removed it).");
+  }
 
-  toggleEditBtn.addEventListener("click", () => {
-    editMode = !editMode;
-    toggleEditBtn.textContent = editMode ? "Edit: ON" : "Edit: OFF";
-    if (editMode) hidePopover();
-    renderHotspots();
-  });
+  const seedBtn = document.getElementById("seedBtn");
+  if (seedBtn) {
+    seedBtn.addEventListener("click", async () => {
+      await fetch("/api/state", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(currentStatePayload()),
+      });
+      alert("Seeded DB with current seating + desk positions.");
+    });
+  } else {
+    console.warn("Optional: #seedBtn not found (ok if you removed it).");
+  }
 
-  exportBtn.addEventListener("click", () => {
-    exportPositionsJSON();
-  });
-
-  // click outside closes
+  // Click outside closes popover
   document.addEventListener("click", (e) => {
     if (popoverEl.classList.contains("hidden")) return;
     const inside = popoverEl.contains(e.target);
@@ -343,23 +382,14 @@ function wireUI() {
     if (!inside && !hs) hidePopover();
   });
 
-  // keep popover positioned on resize if open
+  // Keep popover positioned on resize if open
   window.addEventListener("resize", () => {
     if (popoverEl.classList.contains("hidden") || !activeDeskId) return;
     const hs = document.querySelector(`.hotspot[data-id="${activeDeskId}"]`);
     if (hs) positionPopoverNear(hs);
   });
-
-  const seedBtn = document.getElementById("seedBtn");
-  if (seedBtn) seedBtn.addEventListener("click", async () => {
-    await fetch("/api/state", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(currentStatePayload()),
-    });
-    alert("Seeded DB with current seating + desk positions.");
-  });
 }
+
 
 function renderHotspots() {
   hotspotsEl.innerHTML = "";
