@@ -167,7 +167,7 @@ init().catch((err) => {
   alert("Failed to load employees.json. Run using a local server (Live Server / python http.server).");
 });
 
-const USE_REMOTE_ON_LOAD = false;
+const USE_REMOTE_ON_LOAD = true;
 
 async function init() {
   const data = await fetch(DATA_URL).then((r) => r.json());
@@ -200,7 +200,7 @@ async function init() {
           if (Number.isFinite(p.y)) d.y = p.y;
         }
       }
-    
+
       // override seating
       if (remote.layout && typeof remote.layout === "object") {
         layout = remote.layout;
