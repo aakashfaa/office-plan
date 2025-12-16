@@ -3,6 +3,37 @@ const IMAGES_DIR = "./images/";
 const STORAGE_KEY = "officeSeatingLayout_v2";
 const POSITIONS_URL = "./hotspot_positions.json";
 const SEATS_URL = "./seating_layout.json";
+const STATE_ENDPOINT = "/api/state";
+
+async function loadStateRemote() {
+  const r = await fetch(STATE_ENDPOINT, { cache: "no-store" });
+  const j = await r.json();
+  return j?.value || null;
+}
+
+let saveTimer = null;
+function scheduleRemoteSave(state) {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async () => {
+    try {
+      await fetch(STATE_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(state),
+      });
+    } catch (e) {
+      console.warn("Remote save failed:", e);
+    }
+  }, 250);
+}
+
+function currentStatePayload() {
+  return {
+    desks: draftDesks.map(d => ({ id: d.id, x: d.x, y: d.y })), // positions
+    layout: layout                                       // seating map
+  };
+}
+
 
 
 
@@ -104,6 +135,7 @@ function swapAssignments(aId, bId) {
     const hs = document.querySelector(`.hotspot[data-id="${activeDeskId}"]`);
     if (hs) openDesk(activeDeskId, hs); // rebuild dropdown + preview
   }
+  scheduleRemoteSave(currentStatePayload());
 }
 
 function attachSwapDnD(hotspotEl) {
@@ -150,6 +182,26 @@ async function init() {
   draftDesks = await loadPositionsOrDefault();
 
   layout = await loadSeatsOrEmpty();   // ✅ file-based seating
+
+  // defaults
+  draftDesks = DESKS.map(d => ({ ...d }));
+  layout = {};
+
+  const remote = await loadStateRemote();
+  if (remote) {
+    if (Array.isArray(remote.desks)) {
+      const byId = new Map(draftDesks.map(d => [d.id, d]));
+      for (const p of remote.desks) {
+        const d = byId.get(p?.id);
+        if (!d) continue;
+        if (Number.isFinite(p.x)) d.x = p.x;
+        if (Number.isFinite(p.y)) d.y = p.y;
+      }
+    }
+    if (remote.layout && typeof remote.layout === "object") {
+      layout = remote.layout;
+    }
+  }
 
   renderHotspots();
   wireUI();
@@ -252,6 +304,8 @@ function wireUI() {
     }
     saveLayout(layout);
     await updateHotspotContent(activeDeskId);
+    scheduleRemoteSave(currentStatePayload());
+
   });
 
   resetBtn.addEventListener("click", async () => {
@@ -590,8 +644,8 @@ function attachDragHandlers(hotspotEl) {
     if (d) {
       d.x = round2(leftPct);
       d.y = round2(topPct);
-}
-
+    }
+    scheduleRemoteSave(currentStatePayload());
   });
 }
 
