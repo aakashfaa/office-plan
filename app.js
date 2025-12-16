@@ -308,14 +308,7 @@ function wireUI() {
 
   });
 
-  document.getElementById("seedBtn").addEventListener("click", async () => {
-    await fetch("/api/state", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(currentStatePayload()),
-    });
-    alert("Seeded DB with current seating + desk positions.");
-  });
+
 
 
   resetBtn.addEventListener("click", async () => {
@@ -355,6 +348,15 @@ function wireUI() {
     if (popoverEl.classList.contains("hidden") || !activeDeskId) return;
     const hs = document.querySelector(`.hotspot[data-id="${activeDeskId}"]`);
     if (hs) positionPopoverNear(hs);
+  });
+
+    document.getElementById("seedBtn").addEventListener("click", async () => {
+    await fetch("/api/state", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(currentStatePayload()),
+    });
+    alert("Seeded DB with current seating + desk positions.");
   });
 }
 
