@@ -1,5 +1,6 @@
 {
   "people": [
+    "Aakash Mukherjee",
     "Becky Baierwick",
     "Brendan Spina",
     "Christopher P. Lane",
@@ -21,6 +22,7 @@
     "Josie Catino",
     "Juanita Libreros",
     "Kate Cusick",
+    "Keval Patel",
     "Lauren Hickey",
     "Rob Law",
     "Leah Wolkovich-Quartey",
@@ -44,6 +46,11 @@
     "Vanlim Ma"
   ],
   "records": [
+    {
+      "name": "Aakash Mukherjee",
+      "image_url": "https://cdn.prod.website-files.com/5db85faa1251c44fa7e971ef/5e58087193c4a6e9daca4fe4_finegold-alexander.svg",
+      "profile_url": "https://www.faainc.com"
+    },
     {
       "name": "Becky Baierwick",
       "image_url": "https://cdn.prod.website-files.com/5db85faa1251c46219e9721a/679ce4659db77e3085996687_Becky%20Baierwick%20FA%20headshot-p-500.jpg",
@@ -148,6 +155,11 @@
       "name": "Kate Cusick",
       "image_url": "https://cdn.prod.website-files.com/5db85faa1251c46219e9721a/68274ffb5c3f7b7a4af23ddd_Kate%20Cusick%20headshot%2072dpi-p-500.jpg",
       "profile_url": "https://www.faainc.com/team/kate-cusick"
+    },
+    {
+      "name": "Keval Patel",
+      "image_url": "https://cdn.prod.website-files.com/5db85faa1251c44fa7e971ef/5e58087193c4a6e9daca4fe4_finegold-alexander.svg",
+      "profile_url": "https://www.faainc.com"
     },
     {
       "name": "Lauren Hickey",
