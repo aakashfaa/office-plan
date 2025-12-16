@@ -2,6 +2,8 @@ const DATA_URL = "./employees.json";
 const IMAGES_DIR = "./images/";
 const STORAGE_KEY = "officeSeatingLayout_v2";
 const POSITIONS_URL = "./hotspot_positions.json";
+const SEATS_URL = "./seating_layout.json";
+
 
 
 
@@ -10,12 +12,56 @@ const POSITIONS_URL = "./hotspot_positions.json";
  * x,y,w,h are percentages of the *image box* (viewport width).
  */
 const DESKS = [
-  { id: "D1", x: 8,  y: 18, w: 10, h: 7 },
-  { id: "D2", x: 20, y: 18, w: 10, h: 7 },
-  { id: "D3", x: 32, y: 18, w: 10, h: 7 },
-  { id: "D4", x: 8,  y: 30, w: 10, h: 7 },
-  { id: "D5", x: 20, y: 30, w: 10, h: 7 },
-  { id: "D6", x: 32, y: 30, w: 10, h: 7 },
+  { id: "D1",  x: 6,  y: 10, w: 10, h: 7 },
+  { id: "D2",  x: 14, y: 10, w: 10, h: 7 },
+  { id: "D3",  x: 22, y: 10, w: 10, h: 7 },
+  { id: "D4",  x: 30, y: 10, w: 10, h: 7 },
+  { id: "D5",  x: 38, y: 10, w: 10, h: 7 },
+  { id: "D6",  x: 46, y: 10, w: 10, h: 7 },
+  { id: "D7",  x: 54, y: 10, w: 10, h: 7 },
+  { id: "D8",  x: 62, y: 10, w: 10, h: 7 },
+  { id: "D9",  x: 70, y: 10, w: 10, h: 7 },
+  { id: "D10", x: 78, y: 10, w: 10, h: 7 },
+
+  { id: "D11", x: 6,  y: 22, w: 10, h: 7 },
+  { id: "D12", x: 14, y: 22, w: 10, h: 7 },
+  { id: "D13", x: 22, y: 22, w: 10, h: 7 },
+  { id: "D14", x: 30, y: 22, w: 10, h: 7 },
+  { id: "D15", x: 38, y: 22, w: 10, h: 7 },
+  { id: "D16", x: 46, y: 22, w: 10, h: 7 },
+  { id: "D17", x: 54, y: 22, w: 10, h: 7 },
+  { id: "D18", x: 62, y: 22, w: 10, h: 7 },
+  { id: "D19", x: 70, y: 22, w: 10, h: 7 },
+  { id: "D20", x: 78, y: 22, w: 10, h: 7 },
+
+  { id: "D21", x: 6,  y: 34, w: 10, h: 7 },
+  { id: "D22", x: 14, y: 34, w: 10, h: 7 },
+  { id: "D23", x: 22, y: 34, w: 10, h: 7 },
+  { id: "D24", x: 30, y: 34, w: 10, h: 7 },
+  { id: "D25", x: 38, y: 34, w: 10, h: 7 },
+  { id: "D26", x: 46, y: 34, w: 10, h: 7 },
+  { id: "D27", x: 54, y: 34, w: 10, h: 7 },
+  { id: "D28", x: 62, y: 34, w: 10, h: 7 },
+  { id: "D29", x: 70, y: 34, w: 10, h: 7 },
+  { id: "D30", x: 78, y: 34, w: 10, h: 7 },
+
+  { id: "D31", x: 6,  y: 46, w: 10, h: 7 },
+  { id: "D32", x: 14, y: 46, w: 10, h: 7 },
+  { id: "D33", x: 22, y: 46, w: 10, h: 7 },
+  { id: "D34", x: 30, y: 46, w: 10, h: 7 },
+  { id: "D35", x: 38, y: 46, w: 10, h: 7 },
+  { id: "D36", x: 46, y: 46, w: 10, h: 7 },
+  { id: "D37", x: 54, y: 46, w: 10, h: 7 },
+  { id: "D38", x: 62, y: 46, w: 10, h: 7 },
+  { id: "D39", x: 70, y: 46, w: 10, h: 7 },
+  { id: "D40", x: 78, y: 46, w: 10, h: 7 },
+
+  { id: "D41", x: 10, y: 62, w: 10, h: 7 },
+  { id: "D42", x: 22, y: 62, w: 10, h: 7 },
+  { id: "D43", x: 34, y: 62, w: 10, h: 7 },
+  { id: "D44", x: 46, y: 62, w: 10, h: 7 },
+  { id: "D45", x: 58, y: 62, w: 10, h: 7 },
+  { id: "D46", x: 70, y: 62, w: 10, h: 7 }
 ];
 
 const $ = (sel) => document.querySelector(sel);
@@ -31,11 +77,58 @@ const resetBtn = $("#resetBtn");
 
 let people = [];
 let recordsByName = new Map();
-let layout = loadLayout(); // { deskId: employeeName }
+let layout = {}; // will be loaded from file on init
+
 let activeDeskId = null;
 
 let editMode = false;
 let draftDesks = []; // will be filled on init
+
+function swapAssignments(aId, bId) {
+  if (aId === bId) return;
+
+  const a = layout[aId] || "";
+  const b = layout[bId] || "";
+
+  if (!a && !b) return;
+
+  if (a) layout[bId] = a; else delete layout[bId];
+  if (b) layout[aId] = b; else delete layout[aId];
+
+  saveLayout(layout);
+  updateHotspotContent(aId);
+  updateHotspotContent(bId);
+
+  // If popover is open on one of these desks, refresh its dropdown to respect "assigned" filtering
+  if (activeDeskId === aId || activeDeskId === bId) {
+    const hs = document.querySelector(`.hotspot[data-id="${activeDeskId}"]`);
+    if (hs) openDesk(activeDeskId, hs); // rebuild dropdown + preview
+  }
+}
+
+function attachSwapDnD(hotspotEl) {
+  hotspotEl.addEventListener("dragstart", (e) => {
+    if (editMode) return;
+    e.dataTransfer.setData("text/plain", hotspotEl.dataset.id);
+    e.dataTransfer.effectAllowed = "move";
+  });
+
+  hotspotEl.addEventListener("dragover", (e) => {
+    if (editMode) return;
+    e.preventDefault(); // allow drop
+    e.dataTransfer.dropEffect = "move";
+  });
+
+  hotspotEl.addEventListener("drop", (e) => {
+    if (editMode) return;
+    e.preventDefault();
+    const fromId = e.dataTransfer.getData("text/plain");
+    const toId = hotspotEl.dataset.id;
+    if (!fromId || !toId) return;
+    swapAssignments(fromId, toId);
+  });
+}
+
 
 init().catch((err) => {
   console.error(err);
@@ -44,6 +137,7 @@ init().catch((err) => {
 
 async function init() {
   const data = await fetch(DATA_URL).then((r) => r.json());
+  
 
   people = Array.isArray(data.people) ? data.people.slice() : [];
   const records = Array.isArray(data.records) ? data.records.slice() : [];
@@ -55,11 +149,58 @@ async function init() {
   // ✅ load positions file if present, else fall back to DESKS
   draftDesks = await loadPositionsOrDefault();
 
+  layout = await loadSeatsOrEmpty();   // ✅ file-based seating
+
   renderHotspots();
   wireUI();
 }
 
+async function loadSeatsOrEmpty() {
+  try {
+    const seats = await fetch(SEATS_URL, { cache: "no-store" }).then(r => {
+      if (!r.ok) throw new Error("no seats file");
+      return r.json();
+    });
+
+    const loaded = seats?.layout && typeof seats.layout === "object" ? seats.layout : {};
+    // ensure values are strings
+    const clean = {};
+    for (const [deskId, name] of Object.entries(loaded)) {
+      if (typeof name === "string" && name.trim()) clean[deskId] = name.trim();
+    }
+    return clean;
+  } catch {
+    // if file not found, everyone starts unassigned
+    return {};
+  }
+}
+
+const exportSeatsBtn = document.getElementById("exportSeatsBtn");
+exportSeatsBtn.addEventListener("click", () => exportSeatsJSON());
+
+function exportSeatsJSON() {
+  const payload = {
+    exported_at: new Date().toISOString(),
+    layout: layout
+  };
+
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "seating_layout.json";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+
+  URL.revokeObjectURL(url);
+}
+
 async function loadPositionsOrDefault() {
+  // Start from DESKS as the base (ensures D1..D46 always show)
+  const base = DESKS.map(d => ({ ...d }));
+
   try {
     const pos = await fetch(POSITIONS_URL, { cache: "no-store" }).then(r => {
       if (!r.ok) throw new Error("no positions file");
@@ -67,18 +208,30 @@ async function loadPositionsOrDefault() {
     });
 
     const desks = Array.isArray(pos.desks) ? pos.desks : [];
-    if (!desks.length) throw new Error("empty positions file");
 
-    // Use positions as source of truth, but keep fallback defaults for missing fields
-    const byId = new Map(DESKS.map(d => [d.id, d]));
-    return desks.map(d => ({
-      ...(byId.get(d.id) || {}),
-      ...d
-    }));
+    // Map JSON positions by id
+    const posById = new Map(
+      desks
+        .filter(d => d && typeof d.id === "string")
+        .map(d => [d.id, d])
+    );
+
+    // Overwrite only x/y for IDs that exist in base
+    for (const d of base) {
+      const p = posById.get(d.id);
+      if (!p) continue;
+
+      if (Number.isFinite(p.x)) d.x = p.x;
+      if (Number.isFinite(p.y)) d.y = p.y;
+      // keep d.w / d.h untouched
+    }
+
+    return base;
   } catch {
-    return DESKS.map(d => ({ ...d }));
+    return base;
   }
 }
+
 
 
 
@@ -118,6 +271,7 @@ function wireUI() {
     editMode = !editMode;
     toggleEditBtn.textContent = editMode ? "Edit: ON" : "Edit: OFF";
     if (editMode) hidePopover();
+    renderHotspots();
   });
 
   exportBtn.addEventListener("click", () => {
@@ -153,6 +307,10 @@ function renderHotspots() {
     div.style.top = `${desk.y}%`;
     div.style.width = `${desk.w * 0.36}%`;
     div.style.height = `${desk.h}%`;
+
+    div.draggable = !editMode;     // ✅ allow drag-drop swaps when not editing positions
+    attachSwapDnD(div);            // ✅ attach swap logic
+
 
     // Click opens popover ONLY when not in edit mode
     div.addEventListener("click", async (e) => {
@@ -214,21 +372,27 @@ async function updateHotspotContent(deskId) {
 function openDesk(deskId, hotspotEl) {
   activeDeskId = deskId;
 
+  const assigned = layout[deskId] || "";
+  const assignedSet = new Set(Object.values(layout).filter(Boolean));
+
   // build dropdown
   employeeSelectEl.innerHTML = "";
+
   const placeholder = document.createElement("option");
   placeholder.value = "";
   placeholder.textContent = "— Unassigned —";
   employeeSelectEl.appendChild(placeholder);
 
   for (const name of people) {
+    // Hide people assigned to OTHER desks
+    if (assignedSet.has(name) && name !== assigned) continue;
+
     const opt = document.createElement("option");
     opt.value = name;
     opt.textContent = name;
     employeeSelectEl.appendChild(opt);
   }
 
-  const assigned = layout[deskId] || "";
   employeeSelectEl.value = assigned;
   updateProfilePreview(assigned);
 
@@ -236,17 +400,22 @@ function openDesk(deskId, hotspotEl) {
   positionPopoverNear(hotspotEl);
 }
 
+
 async function updateProfilePreview(name) {
   if (!name) {
-    employeeNameEl.textContent = "—";
+    employeeNameEl.textContent = "Unassigned";
     profileLinkEl.href = "#";
     profileLinkEl.style.pointerEvents = "none";
-    profileLinkEl.style.opacity = "0.5";
+    profileLinkEl.style.opacity = "0.45";
+
+    // Show a nice empty state instead of a broken/blank image
     headshotEl.removeAttribute("src");
-    headshotEl.alt = "Headshot";
+    headshotEl.alt = "Unassigned";
+    headshotEl.classList.add("empty");
     return;
   }
 
+  headshotEl.classList.remove("empty");
   employeeNameEl.textContent = name;
 
   const rec = recordsByName.get(name);
@@ -260,6 +429,7 @@ async function updateProfilePreview(name) {
   else headshotEl.removeAttribute("src");
   headshotEl.alt = `${name} headshot`;
 }
+
 
 function positionPopoverNear(hotspotEl) {
   const mapEl = document.querySelector(".map");
@@ -434,6 +604,11 @@ function exportPositionsJSON() {
       y: d.y
     }))
   };
+
+  function getAssignedSet() {
+    return new Set(Object.values(layout).filter(Boolean));
+  }
+
 
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);

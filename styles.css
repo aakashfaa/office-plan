@@ -5,6 +5,18 @@
   --text: #e5e7eb;
   --blue: rgba(59, 130, 246, 0.22);
   --blue2: rgba(59, 130, 246, 0.35);
+
+    /* Palette */
+  --fa-orange: #FF6C0C;
+  --fa-orange-dark: #D74100;
+  --dark-gray: #363434;
+  --cool-gray-9: #76777B;
+  --cool-gray-7c: #ADB3B8;
+  --cool-gray-3c: #C8C8C8;
+
+  /* Typography */
+  --font-sans: "Montserrat", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+  --font-serif-italic: "Adobe Caslon Pro", "Georgia", "Times New Roman", serif;
 }
 
 * { box-sizing: border-box; }
@@ -12,6 +24,9 @@ html, body {
   height: 100%;
   margin: 0;
   overflow: hidden; /* no scroll ever */
+  font-family: var(--font-sans);
+  background: var(--dark-gray);
+  color: var(--cool-gray-3c);
 }
 
 .map {
@@ -91,15 +106,16 @@ html, body {
 /* Black text + 2-line wrap */
 .hotname {
   color: #000;
-  font-size: 13.5px;
+  font-size: 12.5px;
   font-weight: 750;
-  line-height: 1.1;
+  line-height: 1.12;
   font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Inter, Roboto, Arial;
 
-  text-align: center;        /* ✅ centered under photo */
+  text-align: center;
+
   white-space: normal;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 3;   /* ✅ 3 lines */
   -webkit-box-orient: vertical;
   overflow: hidden;
 
@@ -107,17 +123,29 @@ html, body {
 }
 
 
+
 /* Popover */
 .popover {
   position: absolute;
   min-width: 320px;
   max-width: 360px;
-  background: var(--panel);
-  border: 1px solid var(--stroke);
+  background: rgba(54,52,52,0.96);
+  border: 1px solid rgba(173,179,184,0.25);
+  /* background: var(--panel);
+  border: 1px solid var(--stroke); */
   border-radius: 14px;
   box-shadow: 0 16px 44px rgba(0,0,0,0.60);
+
   padding: 12px;
   z-index: 50;
+}
+
+.label{ color: var(--cool-gray-7c); }
+
+select{
+  border: 1px solid rgba(173,179,184,0.25);
+  background: rgba(54,52,52,0.75);
+  color: var(--cool-gray-3c);
 }
 
 .hidden { display: none; }
@@ -126,6 +154,12 @@ html, body {
   display: flex;
   justify-content: flex-end;
   margin-bottom: 8px;
+}
+
+/* Make the popover "card" feel nicer */
+.popover-body {
+  display: grid;
+  gap: 12px;
 }
 
 .icon-btn {
@@ -154,33 +188,50 @@ select {
   color: var(--text);
 }
 
+/* Centered photo card */
 .profile {
-  display: flex;
-  gap: 12px;
-  margin-top: 12px;
-  padding: 10px;
+  display: grid;
+  justify-items: center;      /* ✅ center everything */
+  gap: 10px;
+  padding: 14px;
   border: 1px solid rgba(148,163,184,0.18);
-  border-radius: 12px;
+  border-radius: 14px;
   background: rgba(2, 6, 23, 0.35);
-  align-items: center;
 }
-
 .headshot {
-  width: 160px;
-  height: 160px;
+  width: 180px;               /* big centered */
+  height: 180px;
   border-radius: 18px;
   object-fit: cover;
   border: 1px solid rgba(148,163,184,0.25);
   background: rgba(148,163,184,0.12);
+  display: block;
+}
+.headshot.empty {
+  background:
+    radial-gradient(circle at 30% 30%, rgba(148,163,184,0.35), transparent 45%),
+    radial-gradient(circle at 70% 65%, rgba(148,163,184,0.25), transparent 55%),
+    rgba(148,163,184,0.08);
+  border-style: dashed;
 }
 
-.profile { align-items: flex-start; }
-.meta { padding-top: 6px; }
+.meta {
+  text-align: center;
+}
+.name {
+  font-size: 14px;
+  font-weight: 800;
+  margin-top: 2px;
+}
 
+.link {
+  font-size: 12px;
+  color: #93c5fd;
+  text-decoration: none;
+  display: inline-block;
+  margin-top: 6px;
+}
 
-
-.name { font-size: 13px; font-weight: 700; }
-.link { font-size: 12px; color: #93c5fd; text-decoration: none; margin-top: 4px; display: inline-block; }
 .link:hover { text-decoration: underline; }
 
 .popover-foot {
@@ -194,16 +245,21 @@ select {
 .btn {
   padding: 10px 12px;
   border-radius: 10px;
-  border: 1px solid rgba(148,163,184,0.25);
-  background: rgba(148,163,184,0.10);
-  color: var(--text);
+  border: 1px solid rgba(255,108,12,0.5);
+  background: rgba(255,108,12,0.22);
+  color: var(--cool-gray-3c);
   cursor: pointer;
   font-weight: 650;
 }
 
-.btn.secondary:hover {
-  background: rgba(148,163,184,0.16);
+.btn:hover{
+  background: rgba(255,108,12,0.32);
 }
+
+/* .btn.secondary{
+  border: 1px solid rgba(173,179,184,0.25);
+  background: rgba(173,179,184,0.10);
+} */
 
 .devbar {
   position: absolute;
