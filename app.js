@@ -350,7 +350,8 @@ function wireUI() {
     if (hs) positionPopoverNear(hs);
   });
 
-    document.getElementById("seedBtn").addEventListener("click", async () => {
+  const seedBtn = document.getElementById("seedBtn");
+  if (seedBtn) seedBtn.addEventListener("click", async () => {
     await fetch("/api/state", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
